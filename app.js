@@ -8,87 +8,199 @@ console.log(client);
 
 // signup functionality
 
-const signupBtn = document.getElementById('signupBtn')
+// const signupBtn = document.getElementById('signupBtn')
+
+// signupBtn && signupBtn.addEventListener('click', async () => {
+//   const full_name = document.getElementById('full_name').value
+//   const email = document.getElementById('email').value
+//   const password = document.getElementById('password').value
+//   const profile_pic = document.getElementById('profile_pic').files[0]
+//   const fileEx = profile_pic.name.split('.')[1]
+
+//   console.log(fileEx);
+//   console.log(full_name, email, password, profile_pic);
+
+//   // authentication 
+
+//   if (email && password) {
+//     try {
+//       const { data, error: signupError } = await client.auth.signUp({
+//         email: email,
+//         password: password,
+//       })
+//       console.log(data);
+//       console.log(signupError);
+
+//       // get User 
+
+//       const { data: { user }, error
+//       } = await client.auth.getUser()
+//       console.log('get user data.........', user);
+//       console.log(user.id);
+//       console.log(error);
+
+//       if (data) {
+
+//         // profile store in bucket 
+
+//         const { data, error } = await client.storage.from('users-profiles')
+//           .upload(`avatars/users-${user.id}.${fileEx}`, profile_pic, {
+//             upsert: true,
+//           })
+//         if (error) {
+//           console.log(error);
+
+//         } else {
+//           console.log('added a profile in bucket', data);
+
+//           const { data: { publicUrl } } = client
+//             .storage
+//             .from('users-profiles')
+//             .getPublicUrl(`avatars/users-${user.id}.${fileEx}`)
+
+//           console.log('profile url............=>', publicUrl);
+
+//           // other details store in database
+
+//           const { error } = await client
+//             .from('storage')
+//             .insert({ user_id: user.id, email: email, full_name: full_name, profile_url: publicUrl })
+
+//           if (error) {
+//             console.log(error);
+//           }
+//           else {
+
+//             window.location.href = "post.html"
+//           }
+//         }
+
+//       }
+//     } catch (error) {
+//       console.log('signup error', error);
+//     }
+//   } else {
+//     if (email) {
+//       alert('please fill password feild')
+//     }
+//     else {
+//       alert('please fill email feild')
+//     }
+//   }
+
+// })
+
+
+
+const signupBtn = document.getElementById('signupBtn');
 
 signupBtn && signupBtn.addEventListener('click', async () => {
-  const full_name = document.getElementById('full_name').value
-  const email = document.getElementById('email').value
-  const password = document.getElementById('password').value
-  const profile_pic = document.getElementById('profile_pic').files[0]
-  const fileEx = profile_pic.name.split('.')[1]
+  const full_name = document.getElementById('full_name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const profile_pic = document.getElementById('profile_pic').files[0];
 
-  console.log(fileEx);
-  console.log(full_name, email, password, profile_pic);
-
-  // authentication 
-
-  if (email && password) {
-    try {
-      const { data, error: signupError } = await client.auth.signUp({
-        email: email,
-        password: password,
-      })
-      console.log(data);
-      console.log(signupError);
-
-      // get User 
-
-      const { data: { user }, error
-      } = await client.auth.getUser()
-      console.log('get user data.........', user);
-      console.log(user.id);
-      console.log(error);
-
-      if (data) {
-
-        // profile store in bucket 
-
-        const { data, error } = await client.storage.from('users-profiles')
-          .upload(`avatars/users-${user.id}.${fileEx}`, profile_pic, {
-            upsert: true,
-          })
-        if (error) {
-          console.log(error);
-
-        } else {
-          console.log('added a profile in bucket', data);
-
-          const { data: { publicUrl } } = client
-            .storage
-            .from('users-profiles')
-            .getPublicUrl(`avatars/users-${user.id}.${fileEx}`)
-
-          console.log('profile url............=>', publicUrl);
-
-          // other details store in database
-
-          const { error } = await client
-            .from('storage')
-            .insert({ user_id: user.id, email: email, full_name: full_name, profile_url: publicUrl })
-
-          if (error) {
-            console.log(error);
-          }
-          else {
-
-            window.location.href = "post.html"
-          }
-        }
-
-      }
-    } catch (error) {
-      console.log('signup error', error);
-    }
-  } else {
-    if (email) {
-      alert('please fill password feild')
-    }
-    else {
-      alert('please fill email feild')
-    }
+  if (!full_name || !email || !password || !profile_pic) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Missing Information',
+      text: 'Please fill all the fields and upload a profile picture.'
+    });
+    return;
   }
 
-})
+  const fileEx = profile_pic.name.split('.').pop();
+
+  try {
+    // Sign up user
+    const { data, error: signupError } = await client.auth.signUp({
+      email: email,
+      password: password,
+    });
+
+    if (signupError) {
+      let errorMessage = "Something went wrong. Please try again.";
+      if (signupError.message.includes("invalid format")) {
+        errorMessage = "Please enter a valid email address!";
+      } else if (signupError.message.includes("Password should be at least 6 characters")) {
+        errorMessage = "Make sure your password length is 6 or greater than 6 characters!";
+      } else if (signupError.message.includes("User already registered")) {
+        errorMessage = "This user is already registered. Try logging in instead.";
+      }
+
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: errorMessage
+      });
+      return;
+    }
+
+    // Get current user
+    const { data: { user }, error: userError } = await client.auth.getUser();
+    if (userError) {
+      Swal.fire({
+        icon: 'error',
+        title: 'User Fetch Failed',
+        text: userError.message
+      });
+      return;
+    }
+
+    // Upload profile picture
+    const { error: uploadError } = await client.storage.from('users-profiles')
+      .upload(`avatars/users-${user.id}.${fileEx}`, profile_pic, { upsert: true });
+
+    if (uploadError) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Upload Failed',
+        text: uploadError.message
+      });
+      return;
+    }
+
+    const { data: { publicUrl } } = client
+      .storage
+      .from('users-profiles')
+      .getPublicUrl(`avatars/users-${user.id}.${fileEx}`);
+
+    // Save other details to DB
+    const { error: insertError } = await client
+      .from('storage')
+      .insert({ user_id: user.id, email: email, full_name: full_name, profile_url: publicUrl });
+
+    if (insertError) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Database Insert Failed',
+        text: insertError.message
+      });
+      return;
+    }
+
+    // Success message
+    Swal.fire({
+      icon: 'success',
+      title: 'Sign Up Successful!',
+      text: 'Redirecting to your posts...',
+      timer: 2000,
+      showConfirmButton: false
+    });
+
+    setTimeout(() => {
+      window.location.href = "post.html";
+    }, 2000);
+
+  } catch (error) {
+    console.error("signup error: ", error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Unexpected Error',
+      text: error.message || 'Something went wrong, please try again.'
+    });
+  }
+});
 
 // login page
 
@@ -535,14 +647,15 @@ if (window.location.pathname.includes("all-blogs.html")) {
         const readPostBox = document.getElementById('readPostBox')
         console.log(readPostBox);
         readPostBox.innerHTML = data.map(({ id, title, description, storage }) => `
-  <div class="card bg-white border-danger mt-3 container justify-content-center align-items-start" id='${id}'" style="width: 40rem; height:auto;">
+        <div class="col-12">
+  <div class="card  text-black  mt-3 container justify-content-center align-items-start" id='${id}'" style="width: 40rem; height: auto; box-shadow: 0px 0px 15px grey; border: 1px solid grey;">
   <div class="card-body py-3 px-0">
   <div class="user-profile">
                   <img
                     id="profile-avatar"
                     src="${storage?.profile_url || 'default.jpg'}"
                     alt="Profile Picture"
-                    class="avatar"
+                    class="avatar"  style="border: 1px solid grey; box-shadow: 0px 0px 5px grey;"
                   />
                   <div class="user-details">
                     <h3 id="profile-name" class="text-black" style="font-family:'myFont';">${storage?.full_name || 'Unknown User'}</h3>
@@ -560,6 +673,7 @@ if (window.location.pathname.includes("all-blogs.html")) {
    <button class="px-3 py-1 ms-3 bg-transparent border-0 rounded-2 hover"><i class="fa-solid fa-bookmark pe-2" style="color: #000000ff;"></i> Save </button>
     </div>
   </div>
+</div>
 </div>`)
           .join("");
       }
@@ -602,13 +716,14 @@ const readMyPosts = async () => {
         .replace(/"/g, "&quot;"); // Escape quotes
 
       return `
-<div class="card bg-white border-danger  mt-3 container justify-content-center align-items-start" style="width: 40rem; height:auto; overflow-X:hidden;">
+         <div class="col-12">
+<div class="card bg-white mt-3 container justify-content-center align-items-start" style="width: 40rem; height:auto; overflow-X:hidden;  box-shadow: 0px 0px 15px grey; border: 1px solid grey;">
   <div class="card-body py-3 px-0">
     <div class="user-profile">
       <img
         src="${storage?.profile_url || 'default.jpg'}"
         alt="Profile Picture"
-        class="avatar"
+        class="avatar"  style="border: 1px solid grey; box-shadow: 0px 0px 5px grey;"
       />
       <div class="user-details">
         <h3 class="text-black" style="font-family:'myFont';">${storage?.full_name || 'Unknown User'}</h3>
@@ -639,6 +754,7 @@ const readMyPosts = async () => {
           Edit post
         </button>
     <button class="btn btn-outline-danger delete-post-btn" data-id="${id}">Delete post</button>
+  </div>
   </div>
 </div>`;
     }).join("");
