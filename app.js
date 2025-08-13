@@ -31,16 +31,13 @@ signupBtn && signupBtn.addEventListener('click', async () => {
       console.log(data);
       console.log(signupError);
 
-
       // get User 
 
       const { data: { user }, error
       } = await client.auth.getUser()
       console.log('get user data.........', user);
       console.log(user.id);
-
       console.log(error);
-
 
       if (data) {
 
@@ -92,7 +89,6 @@ signupBtn && signupBtn.addEventListener('click', async () => {
   }
 
 })
-
 
 // login page
 
@@ -187,11 +183,9 @@ if (window.location.pathname.endsWith('all-blogs.html')) {
         if (avatar) {
           avatar.src = profile_url;
         }
-
       } else {
         console.log(error);
       }
-
     } else {
       console.log('post page error=======>', error);
     }
@@ -216,19 +210,15 @@ if (window.location.pathname.endsWith('my-blogs.html')) {
         if (avatar) {
           avatar.src = profile_url;
         }
-
       } else {
         console.log(error);
       }
-
     } else {
       console.log('post page error=======>', error);
     }
   }
-
   displayProfile();
 }
-
 
 // profile fetch for profile page 
 
@@ -415,13 +405,9 @@ chanagePicture && chanagePicture.addEventListener('click', async () => {
       console.log(data);
       console.log(updateURLERROR);
     }
-
     updateProfile()
-
   });
-
 })
-
 
 // logout functionality
 
@@ -437,7 +423,6 @@ logoutBtn &&
       alert("Logout Failed.");
     }
   });
-
 
 // add post functionality
 
@@ -527,13 +512,11 @@ submitPost &&
 // read all posts
 
 if (window.location.pathname.includes("all-blogs.html")) {
-
   try {
     const readAllPosts = async () => {
-
-  const { data, error } = await client
-  .from("users information")
-  .select(`
+      const { data, error } = await client
+        .from("users information")
+        .select(`
     user_id,
     title,
     description,
@@ -544,15 +527,14 @@ if (window.location.pathname.includes("all-blogs.html")) {
     )
   `);
 
-if (error) {
-  console.error("Error fetching posts:", error);
-} else {
-  console.log("Posts with profile:", data);
+      if (error) {
+        console.error("Error fetching posts:", error);
+      } else {
+        console.log("Posts with profile:", data);
 
-
-      const readPostBox = document.getElementById('readPostBox')
-      console.log(readPostBox);
-      readPostBox.innerHTML = data.map(({ id, title, description, storage }) => `
+        const readPostBox = document.getElementById('readPostBox')
+        console.log(readPostBox);
+        readPostBox.innerHTML = data.map(({ id, title, description, storage }) => `
   <div class="card bg-white border-danger mt-3 container justify-content-center align-items-start" id='${id}'" style="width: 40rem; height:auto;">
   <div class="card-body py-3 px-0">
   <div class="user-profile">
@@ -579,32 +561,24 @@ if (error) {
     </div>
   </div>
 </div>`)
-        .join("");
-}
-}
-
+          .join("");
+      }
+    }
     readAllPosts();
   }
   catch (error) {
     console.log(error);
   }
-  }
-
+}
 
 // read my posts 
 
 const readMyPosts = async () => {
   const { data: { user } } = await client.auth.getUser();
 
-  // const { data, error } = await client
-  //   .from('users information')
-  //   .select()
-  //   .eq('users_id', user.id);
-
-
   const { data, error } = await client
     .from('users information')
-   .select(`
+    .select(`
      id,
     user_id,
     title,
@@ -622,7 +596,7 @@ const readMyPosts = async () => {
 
     const readMyPostBox = document.getElementById('readMyPostBox');
 
-    readMyPostBox.innerHTML = data.map(({ id, title, description, storage}) => {
+    readMyPostBox.innerHTML = data.map(({ id, title, description, storage }) => {
       // Correctly encode JSON and escape it for HTML
       const postData = JSON.stringify({ title, description })
         .replace(/"/g, "&quot;"); // Escape quotes
