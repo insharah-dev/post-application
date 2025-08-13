@@ -8,90 +8,6 @@ console.log(client);
 
 // signup functionality
 
-// const signupBtn = document.getElementById('signupBtn')
-
-// signupBtn && signupBtn.addEventListener('click', async () => {
-//   const full_name = document.getElementById('full_name').value
-//   const email = document.getElementById('email').value
-//   const password = document.getElementById('password').value
-//   const profile_pic = document.getElementById('profile_pic').files[0]
-//   const fileEx = profile_pic.name.split('.')[1]
-
-//   console.log(fileEx);
-//   console.log(full_name, email, password, profile_pic);
-
-//   // authentication 
-
-//   if (email && password) {
-//     try {
-//       const { data, error: signupError } = await client.auth.signUp({
-//         email: email,
-//         password: password,
-//       })
-//       console.log(data);
-//       console.log(signupError);
-
-//       // get User 
-
-//       const { data: { user }, error
-//       } = await client.auth.getUser()
-//       console.log('get user data.........', user);
-//       console.log(user.id);
-//       console.log(error);
-
-//       if (data) {
-
-//         // profile store in bucket 
-
-//         const { data, error } = await client.storage.from('users-profiles')
-//           .upload(`avatars/users-${user.id}.${fileEx}`, profile_pic, {
-//             upsert: true,
-//           })
-//         if (error) {
-//           console.log(error);
-
-//         } else {
-//           console.log('added a profile in bucket', data);
-
-//           const { data: { publicUrl } } = client
-//             .storage
-//             .from('users-profiles')
-//             .getPublicUrl(`avatars/users-${user.id}.${fileEx}`)
-
-//           console.log('profile url............=>', publicUrl);
-
-//           // other details store in database
-
-//           const { error } = await client
-//             .from('storage')
-//             .insert({ user_id: user.id, email: email, full_name: full_name, profile_url: publicUrl })
-
-//           if (error) {
-//             console.log(error);
-//           }
-//           else {
-
-//             window.location.href = "post.html"
-//           }
-//         }
-
-//       }
-//     } catch (error) {
-//       console.log('signup error', error);
-//     }
-//   } else {
-//     if (email) {
-//       alert('please fill password feild')
-//     }
-//     else {
-//       alert('please fill email feild')
-//     }
-//   }
-
-// })
-
-
-
 const signupBtn = document.getElementById('signupBtn');
 
 signupBtn && signupBtn.addEventListener('click', async () => {
@@ -187,6 +103,12 @@ signupBtn && signupBtn.addEventListener('click', async () => {
       timer: 2000,
       showConfirmButton: false
     });
+
+// Clear input fields
+document.getElementById('full_name').value = '';
+document.getElementById('email').value = '';
+document.getElementById('password').value = '';
+document.getElementById('profile_pic').value = '';
 
     setTimeout(() => {
       window.location.href = "post.html";
