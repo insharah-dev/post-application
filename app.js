@@ -829,7 +829,34 @@ async function editPost(postid, posttitle, postdescribtion) {
 }
 
 
+//   toggle eye icon signup
 
+const togglePassword = document.getElementById("togglePassword");
+const signupPassword = document.getElementById("password");
+const eyeIcon = document.getElementById("eyeIcon");
 
+if (togglePassword && signupPassword && eyeIcon) {
+  togglePassword.addEventListener("click", () => {
+    const type =
+      signupPassword.getAttribute("type") === "password" ? "text" : "password";
+    signupPassword.setAttribute("type", type);
+    eyeIcon.classList.toggle("fa-eye");
+    eyeIcon.classList.toggle("fa-eye-slash");
+  });
+}
 
+//   toggle eye icon signup
 
+const togglePassword1 = document.getElementById("togglePassword1");
+const loginPassword = document.getElementById("login-password");
+const eyeIcon1 = document.getElementById("eyeIcon1");
+
+if (togglePassword1 && loginPassword && eyeIcon1) {
+  togglePassword1.addEventListener("click", () => {
+    const type =
+      loginPassword.getAttribute("type") === "password" ? "text" : "password";
+    loginPassword.setAttribute("type", type);
+    eyeIcon1.classList.toggle("fa-eye");
+    eyeIcon1.classList.toggle("fa-eye-slash");
+  });
+}
